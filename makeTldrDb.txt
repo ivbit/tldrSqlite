@@ -1,0 +1,26 @@
+#! /bin/sh
+# -*- tcl -*-
+# vim:filetype=tcl
+# launch \
+exec tclsh "$0" ${1+"$@"}
+
+set files {}
+# package require sqlite3
+# set outFile "tldr.db"
+# sqlite3 data $outFile
+
+data transaction {
+  data eval {PRAGMA foreign_keys=OFF}
+  data eval {CREATE TABLE tldr(id INTEGER PRIMARY KEY, item TEXT, contents TEXT)}
+  foreach f $files {
+    # chan puts [file normalize "$f.md"]
+    # chan puts "$f.md"
+    set c [open "./$f.md"]
+    set txt ""
+    set txt [chan read $c]
+    data eval {INSERT INTO tldr(item,contents) VALUES(:f,:txt)}
+    data close
+    chan close $c
+  }
+}
+
